@@ -71,6 +71,7 @@ src/
 - Unit tests co-located: `__tests__/` folder beside the module being tested.
 - Integration / screen tests use React Test Renderer + `@testing-library/react-native` (add it when writing the first screen test).
 - Mock at the boundary (data source / API layer), never deep inside the domain.
+- **Only test meaningful logic and behaviour** — do not write tests for pure data classes, DTOs, or entity mappers that contain no logic beyond field assignment. Tests should assert non-trivial decisions, not that a constructor copies a value.
 
 ### Commits
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `test:`, `chore:`.
