@@ -2,23 +2,46 @@ import { LocalJokeRepository } from '../LocalJokeRepository';
 import { Joke } from '../../../core/entities/Joke';
 
 describe('LocalJokeRepository', () => {
-  const repo = new LocalJokeRepository();
+  let repo: LocalJokeRepository;
 
-  it('loads all 6 jokes', () => {
-    expect(repo.getAll()).toHaveLength(6);
+  beforeEach(() => {
+    repo = new LocalJokeRepository();
   });
 
-  it('all loaded jokes are Joke instances', () => {
-    repo.getAll().forEach((j) => expect(j).toBeInstanceOf(Joke));
+  describe('getAll', () => {
+    it('returns ok with all 6 jokes', () => {
+      const result = repo.getAll();
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toHaveLength(6);
+      }
+    });
+
+    it('all loaded jokes are Joke instances', () => {
+      const result = repo.getAll();
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        result.value.forEach((j) => expect(j).toBeInstanceOf(Joke));
+      }
+    });
   });
 
-  it('getById returns the correct joke', () => {
-    const joke = repo.getById('1');
-    expect(joke).toBeInstanceOf(Joke);
-    expect(joke?.question).toBe('Why do ducks have tail feathers?');
-  });
+  describe('getById', () => {
+    it('returns ok with the correct joke for a known id', () => {
+      const result = repo.getById('1');
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toBeInstanceOf(Joke);
+        expect(result.value.question).toBe('Why do ducks have tail feathers?');
+      }
+    });
 
-  it('getById returns undefined for an unknown id', () => {
-    expect(repo.getById('999')).toBeUndefined();
+    it('returns err with kind not_found for an unknown id', () => {
+      const result = repo.getById('999');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.kind).toBe('not_found');
+      }
+    });
   });
 });
