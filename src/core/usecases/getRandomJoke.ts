@@ -13,6 +13,9 @@ export function getRandomJoke(repository: IJokeRepository): Result<Joke, Reposit
   if (jokes.length === 0) {
     return err({ kind: 'unavailable', message: 'No jokes available' });
   }
-  const joke = jokes[Math.floor(Math.random() * jokes.length)] as Joke;
+  const joke = jokes[Math.floor(Math.random() * jokes.length)];
+  if (!joke) {
+    return err({ kind: 'unavailable', message: 'No jokes available' });
+  }
   return ok(joke);
 }

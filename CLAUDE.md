@@ -20,27 +20,6 @@ React Native 0.85.3 app (TypeScript) bootstrapped with the React Native CLI. Cur
 
 All new source code lives under `src/`. Never add business logic directly to `App.tsx` or `index.js`.
 
-```
-src/
-  core/
-    entities/          # Pure TypeScript types / domain models (no RN imports)
-    usecases/          # Application business rules — plain functions or classes
-    repositories/      # Abstract interfaces (ports)
-  data/
-    repositories/      # Concrete repository implementations (adapters)
-    datasources/       # Remote (API) and local (storage) data sources
-    models/            # API response DTOs; map to entities at the boundary
-  presentation/
-    screens/           # One folder per screen: Screen.tsx + styles.ts
-    components/        # Shared, reusable UI components
-    navigation/        # Stack/tab definitions, route param types
-    hooks/             # Custom hooks (useJokes, useTheme, etc.)
-    styles/            # Global theme tokens (colors, spacing, typography)
-  infrastructure/
-    api/               # Axios/fetch wrappers, base URLs, interceptors
-    storage/           # AsyncStorage / MMKV helpers
-```
-
 ### Layer rules
 - `core/` has **zero** React or React Native imports — it is pure business logic.
 - `data/` depends only on `core/` interfaces, not on `presentation/`.

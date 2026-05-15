@@ -1,8 +1,4 @@
-interface JokeDTO {
-  id: string;
-  question: string;
-  punchline: string;
-}
+import type { JokeDTO } from '../models/JokeDTO';
 
 export class Joke {
   private constructor(
