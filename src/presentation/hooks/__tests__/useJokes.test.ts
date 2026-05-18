@@ -1,8 +1,10 @@
+import React from 'react';
 import { renderHook, act } from '@testing-library/react-native';
 import { useJokes } from '../useJokes';
 import { Joke } from '../../../core/entities/Joke';
 import type { IJokeRepository } from '../../../core/repositories/IJokeRepository';
 import { ok, err } from '../../../core/utils/Result';
+import { JokeRepositoryProvider } from '../../context/JokeRepositoryContext';
 
 const makeJoke = (id: string) =>
   Joke.fromDTO({ id, question: `Q${id}`, punchline: `P${id}` });
@@ -22,9 +24,17 @@ const failingRepo: IJokeRepository = {
   getById: () => err({ kind: 'unavailable', message: 'Source unavailable' }),
 };
 
+function makeWrapper(repo: IJokeRepository) {
+  return function Wrapper({ children }: { children: React.ReactNode }) {
+    return React.createElement(JokeRepositoryProvider, { repository: repo, children });
+  };
+}
+
 describe('useJokes', () => {
   it('initial state is loaded with a joke', () => {
-    const { result } = renderHook(() => useJokes(twoJokeRepo));
+    const { result } = renderHook(() => useJokes(), {
+      wrapper: makeWrapper(twoJokeRepo),
+    });
     expect(result.current.state.status).toBe('loaded');
     if (result.current.state.status === 'loaded') {
       expect(result.current.state.joke).toBeInstanceOf(Joke);
@@ -32,7 +42,9 @@ describe('useJokes', () => {
   });
 
   it('loadNext advances to a different joke', () => {
-    const { result } = renderHook(() => useJokes(twoJokeRepo));
+    const { result } = renderHook(() => useJokes(), {
+      wrapper: makeWrapper(twoJokeRepo),
+    });
     expect(result.current.state.status).toBe('loaded');
     const firstId =
       result.current.state.status === 'loaded'
@@ -52,7 +64,9 @@ describe('useJokes', () => {
   });
 
   it('transitions to out_of_jokes error when all jokes exhausted', () => {
-    const { result } = renderHook(() => useJokes(twoJokeRepo));
+    const { result } = renderHook(() => useJokes(), {
+      wrapper: makeWrapper(twoJokeRepo),
+    });
     act(() => {
       result.current.loadNext();
     });
@@ -66,7 +80,9 @@ describe('useJokes', () => {
   });
 
   it('transitions to error state on repository failure', () => {
-    const { result } = renderHook(() => useJokes(failingRepo));
+    const { result } = renderHook(() => useJokes(), {
+      wrapper: makeWrapper(failingRepo),
+    });
     expect(result.current.state.status).toBe('error');
     if (result.current.state.status === 'error') {
       expect(result.current.state.error.kind).toBe('repository_error');
