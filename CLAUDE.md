@@ -42,6 +42,9 @@ All new source code lives under `src/`. Never add business logic directly to `Ap
 - Styles co-located in a `styles.ts` beside the component using `StyleSheet.create`.
 - Use `useCallback` and `useMemo` only when there is a measurable perf reason — don't pre-optimise.
 
+### Hooks
+- **No render-body initialization.** Never construct objects or run side effects directly in the hook/component render body. Use `useState(() => ...)` (lazy initializer) for one-time object construction; use `useEffect` for side effects. Render-body mutations are fragile under React Strict Mode (double-invoke) and concurrent features.
+
 ### Navigation
 - All route names defined as a typed `RootStackParamList` (or per-navigator param list) in `src/presentation/navigation/types.ts`.
 - Use `useNavigation<NativeStackNavigationProp<RootStackParamList>>()` — never cast `navigation` to `any`.
