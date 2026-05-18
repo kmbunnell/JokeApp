@@ -56,6 +56,7 @@ Once you have the user's answers, use the Agent tool to spawn a `general-purpose
 > ## Architecture Decisions
 > - How the work fits into the clean-architecture layers (core / data / presentation / infrastructure)
 > - Any new patterns or abstractions being introduced and why
+> - For each new object construction: where it runs (module scope, lazy initializer, effect), who owns it, and what happens if it throws
 >
 > ## Directory & File Changes
 > List every file to be created or modified:

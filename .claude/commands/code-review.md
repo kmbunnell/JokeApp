@@ -27,6 +27,8 @@ Use the Agent tool to spawn a `general-purpose` subagent. Give it this brief:
 >    - TDD coverage — every new behaviour has a test; tests assert behaviour not implementation
 >    - React Native specifics (styles, navigation typing, safe area, perf hook misuse)
 >    - Unhandled errors, `console.log`, hardcoded values that should be constants
+>    - Module-scope initialization that can throw before any error boundary or try/catch can intercept it
+>    - Dead/unreachable error handling — try/catch where the risky code was constructed upstream of the try block
 >
 > 5. Return findings in this exact format:
 >
