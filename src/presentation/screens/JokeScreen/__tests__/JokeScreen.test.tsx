@@ -2,74 +2,66 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import JokeScreen from '../JokeScreen';
-import { useJokes } from '../../../hooks/useJokes';
 import { Joke } from '../../../../core/entities/Joke';
-
-jest.mock('../../../hooks/useJokes');
-const mockUseJokes = useJokes as jest.MockedFunction<typeof useJokes>;
+import type { IJokeRepository } from '../../../../core/repositories/IJokeRepository';
+import { ok, err } from '../../../../core/utils/Result';
+import { JokeRepositoryProvider } from '../../../context/JokeRepositoryContext';
 
 const makeJoke = (id: string) =>
   Joke.fromDTO({ id, question: `Why is ${id} funny?`, punchline: `P${id}` });
 
-const mockLoadNext = jest.fn();
+function makeRepo(jokes: Joke[]): IJokeRepository {
+  return {
+    getAll: () => ok(jokes),
+    getById: (id) => {
+      const joke = jokes.find((j) => j.id === id);
+      return joke
+        ? ok(joke)
+        : err({ kind: 'not_found', message: `Not found: ${id}` });
+    },
+  };
+}
 
-function renderScreen() {
+const failingRepo: IJokeRepository = {
+  getAll: () => err({ kind: 'unavailable', message: 'Source unavailable' }),
+  getById: () => err({ kind: 'unavailable', message: 'Source unavailable' }),
+};
+
+function renderScreen(repo: IJokeRepository) {
   return render(
-    <NavigationContainer>
-      <JokeScreen />
-    </NavigationContainer>,
+    <JokeRepositoryProvider repository={repo}>
+      <NavigationContainer>
+        <JokeScreen />
+      </NavigationContainer>
+    </JokeRepositoryProvider>,
   );
 }
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
-
 describe('JokeScreen', () => {
   it('renders the joke question when loaded', () => {
-    mockUseJokes.mockReturnValue({
-      state: { status: 'loaded', joke: makeJoke('1') },
-      loadNext: mockLoadNext,
-    });
-    renderScreen();
+    renderScreen(makeRepo([makeJoke('1')]));
     expect(screen.getByText('Why is 1 funny?')).toBeTruthy();
   });
 
-  it('pressing "Let\'s hear another!" calls loadNext', () => {
-    mockUseJokes.mockReturnValue({
-      state: { status: 'loaded', joke: makeJoke('1') },
-      loadNext: mockLoadNext,
-    });
-    renderScreen();
+  it('pressing "Let\'s hear another!" cycles through jokes', () => {
+    renderScreen(makeRepo([makeJoke('1')]));
     fireEvent.press(screen.getByText("Let's hear another!"));
-    expect(mockLoadNext).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("You've heard them all!")).toBeTruthy();
   });
 
-  it('renders out-of-jokes placeholder when exhausted', () => {
-    mockUseJokes.mockReturnValue({
-      state: { status: 'error', error: { kind: 'out_of_jokes' } },
-      loadNext: mockLoadNext,
-    });
-    renderScreen();
+  it('renders out-of-jokes placeholder when joke list is empty', () => {
+    renderScreen(makeRepo([]));
     expect(screen.getByText("You've heard them all!")).toBeTruthy();
   });
 
   it('"IDK, Tell me!" is disabled when not in loaded state', () => {
-    mockUseJokes.mockReturnValue({
-      state: { status: 'error', error: { kind: 'out_of_jokes' } },
-      loadNext: mockLoadNext,
-    });
-    renderScreen();
+    renderScreen(makeRepo([]));
     const button = screen.getByTestId('idk-button');
     expect(button.props.accessibilityState?.disabled).toBe(true);
   });
 
-  it('renders loading indicator when status is loading', () => {
-    mockUseJokes.mockReturnValue({
-      state: { status: 'loading' },
-      loadNext: mockLoadNext,
-    });
-    renderScreen();
-    expect(screen.getByTestId('loading-indicator')).toBeTruthy();
+  it('renders error placeholder on repository failure', () => {
+    renderScreen(failingRepo);
+    expect(screen.getByText('Something went wrong loading a joke.')).toBeTruthy();
   });
 });
