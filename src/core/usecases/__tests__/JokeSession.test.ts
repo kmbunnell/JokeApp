@@ -65,12 +65,12 @@ describe('JokeSession', () => {
     }
   });
 
-  it('propagates repository errors', () => {
+  it('maps repository errors to repository_error', () => {
     const session = new JokeSession(failingRepo);
     const result = session.getNextJoke();
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.kind).toBe('unavailable');
+      expect(result.error.kind).toBe('repository_error');
     }
   });
 });
