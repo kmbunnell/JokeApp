@@ -14,14 +14,18 @@ export function useJokes(repository?: IJokeRepository): {
   loadNext: () => void;
 } {
   const sessionRef = useRef<JokeSession | null>(null);
+  const sessionErrorRef = useRef<SessionError | null>(null);
 
-  if (sessionRef.current === null) {
+  if (sessionRef.current === null && sessionErrorRef.current === null) {
     try {
       sessionRef.current = new JokeSession(
         repository ?? new LocalJokeRepository(),
       );
-    } catch {
-      // TODO: handle LocalJokeRepository constructor failure (Zod parse error on bad jokes.json)
+    } catch (e) {
+      sessionErrorRef.current = {
+        kind: 'repository_error',
+        message: e instanceof Error ? e.message : 'Failed to load jokes',
+      };
     }
   }
 
@@ -46,8 +50,12 @@ export function useJokes(repository?: IJokeRepository): {
   };
 
   useEffect(() => {
-    loadNext();
-    // loadNext closes over sessionRef (stable ref) and setState (stable) — safe with empty deps
+    if (sessionErrorRef.current) {
+      setState({ status: 'error', error: sessionErrorRef.current });
+    } else {
+      loadNext();
+    }
+    // sessionErrorRef and setState are stable — safe with empty deps
   }, []);
 
   return { state, loadNext };

@@ -9,11 +9,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Routes } from '../../navigation/types';
 import type { RootStackParamList } from '../../navigation/types';
 import { useJokes } from '../../hooks/useJokes';
 import { styles } from './styles';
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Joke'>;
+type Nav = NativeStackNavigationProp<RootStackParamList, typeof Routes.Joke>;
 
 export default function JokeScreen() {
   const navigation = useNavigation<Nav>();
@@ -64,7 +65,7 @@ export default function JokeScreen() {
           accessibilityState={{ disabled: !isLoaded }}
           onPress={() => {
             if (state.status === 'loaded') {
-              navigation.navigate('Answer', { jokeId: state.joke.id });
+              navigation.navigate(Routes.Answer, { jokeId: state.joke.id });
             }
           }}>
           <Text style={styles.buttonText}>IDK, Tell me!</Text>
