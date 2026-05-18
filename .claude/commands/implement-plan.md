@@ -80,6 +80,8 @@ After all steps are complete, run the full suite and verify:
 - [ ] No business logic leaked into components.
 - [ ] No presentation concerns leaked into `core/`.
 - [ ] Every regression risk listed in the plan has a corresponding test or explicit mitigation.
+- [ ] No module-scope initialization that can throw — object construction that may fail must use lazy initializers (`useState(() => ...)`) or factories, never the module top-level, so error boundaries and try/catch blocks can actually intercept failures.
+- [ ] Every try/catch is reachable — the risky code is inside the try block, not constructed upstream of it. Dead error handlers give false confidence and should be removed.
 
 Fix any failures before reporting done.
 

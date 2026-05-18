@@ -73,9 +73,9 @@ export default function JokeScreen() {
           disabled={!isLoaded}
           accessibilityState={{ disabled: !isLoaded }}
           onPress={() => {
-            if (state.status === 'loaded') {
-              navigation.navigate(Routes.Answer, { jokeId: state.joke.id });
-            }
+            navigation.navigate(Routes.Answer, {
+              jokeId: (state as Extract<JokesState, { status: 'loaded' }>).joke.id,
+            });
           }}>
           <Text style={styles.buttonText}>IDK, Tell me!</Text>
         </Pressable>
