@@ -11,7 +11,7 @@ export const JokeDTOArraySchema = JokeDTOSchema.array();
 
 // Compile-time check: Zod-inferred type must satisfy the core interface
 type _Satisfies = z.infer<typeof JokeDTOSchema> extends JokeDTO ? true : never;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _check: _Satisfies = true;
-void _check;
 
 export type { JokeDTO };

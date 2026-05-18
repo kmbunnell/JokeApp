@@ -48,7 +48,6 @@ export function useJokes(repository?: IJokeRepository): {
   useEffect(() => {
     loadNext();
     // loadNext closes over sessionRef (stable ref) and setState (stable) — safe with empty deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { state, loadNext };
