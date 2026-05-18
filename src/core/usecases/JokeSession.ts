@@ -1,10 +1,11 @@
 import type { Joke } from '../entities/Joke';
 import type { IJokeRepository } from '../repositories/IJokeRepository';
-import type { RepositoryError } from '../repositories/RepositoryError';
 import type { Result } from '../utils/Result';
 import { ok, err } from '../utils/Result';
 
-export type SessionError = RepositoryError | { kind: 'out_of_jokes' };
+export type SessionError =
+  | { kind: 'out_of_jokes' }
+  | { kind: 'repository_error'; message: string };
 
 export class JokeSession {
   private seenIds = new Set<string>();
@@ -14,7 +15,7 @@ export class JokeSession {
   getNextJoke(): Result<Joke, SessionError> {
     const result = this.repository.getAll();
     if (!result.ok) {
-      return result;
+      return err({ kind: 'repository_error', message: result.error.message });
     }
     const unseen = result.value.filter((j) => !this.seenIds.has(j.id));
     if (unseen.length === 0) {

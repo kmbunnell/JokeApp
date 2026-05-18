@@ -69,7 +69,7 @@ describe('useJokes', () => {
     const { result } = renderHook(() => useJokes(failingRepo));
     expect(result.current.state.status).toBe('error');
     if (result.current.state.status === 'error') {
-      expect(result.current.state.error.kind).toBe('unavailable');
+      expect(result.current.state.error.kind).toBe('repository_error');
     }
   });
 });
