@@ -1,4 +1,9 @@
+export const Routes = {
+  Joke: 'Joke',
+  Answer: 'Answer',
+} as const;
+
 export type RootStackParamList = {
-  Joke: undefined;
-  Answer: { jokeId: string };
+  [Routes.Joke]: undefined;
+  [Routes.Answer]: { jokeId: string };
 };
