@@ -40,6 +40,7 @@ All new source code lives under `src/`. Never add business logic directly to `Ap
 ### Components
 - Props interfaces named `<ComponentName>Props`.
 - Styles co-located in a `styles.ts` beside the component using `StyleSheet.create`.
+- All user-visible string literals defined in a co-located `strings.ts` (`as const` object) — never inline text in JSX.
 - Use `useCallback` and `useMemo` only when there is a measurable perf reason — don't pre-optimise.
 
 ### Hooks
