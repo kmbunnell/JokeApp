@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import type { Joke } from '../../core/entities/Joke';
 import { JokeSession, type SessionError } from '../../core/usecases/JokeSession';
 import { useJokeRepository } from '../context/JokeRepositoryContext';
@@ -22,9 +23,12 @@ export function useJokes(): { state: JokesState; loadNext: () => void } {
     }
   }, [session]);
 
-  useEffect(() => {
-    loadNext();
-  }, [loadNext]);
+  useFocusEffect(
+    useCallback(() => {
+      setState({ status: 'loading' });
+      loadNext();
+    }, [loadNext]),
+  );
 
   return { state, loadNext };
 }

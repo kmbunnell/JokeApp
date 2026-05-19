@@ -6,6 +6,21 @@ import type { IJokeRepository } from '../../../core/repositories/IJokeRepository
 import { ok, err } from '../../../core/utils/Result';
 import { JokeRepositoryProvider } from '../../context/JokeRepositoryContext';
 
+// Capture the focus callback so tests can simulate re-focus without a full navigator
+let lastFocusCallback: (() => void) | null = null;
+
+jest.mock('@react-navigation/native', () => {
+  const ActualReact = require('react');
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    useFocusEffect: (cb: () => void) => {
+      lastFocusCallback = cb;
+      ActualReact.useEffect(cb, [cb]);
+    },
+  };
+});
+
 const makeJoke = (id: string) =>
   Joke.fromDTO({ id, question: `Q${id}`, punchline: `P${id}` });
 
@@ -31,6 +46,10 @@ function makeWrapper(repo: IJokeRepository) {
 }
 
 describe('useJokes', () => {
+  beforeEach(() => {
+    lastFocusCallback = null;
+  });
+
   it('initial state is loaded with a joke', () => {
     const { result } = renderHook(() => useJokes(), {
       wrapper: makeWrapper(twoJokeRepo),
@@ -39,6 +58,36 @@ describe('useJokes', () => {
     if (result.current.state.status === 'loaded') {
       expect(result.current.state.joke).toBeInstanceOf(Joke);
     }
+    // Verify loading is triggered via useFocusEffect, not useEffect
+    expect(lastFocusCallback).not.toBeNull();
+  });
+
+  it('resets to loading and advances to next joke on re-focus', () => {
+    const { result } = renderHook(() => useJokes(), {
+      wrapper: makeWrapper(twoJokeRepo),
+    });
+    expect(result.current.state.status).toBe('loaded');
+    const firstId =
+      result.current.state.status === 'loaded'
+        ? result.current.state.joke.id
+        : null;
+
+    act(() => {
+      // Simulate screen regaining focus (e.g. popping AnswerScreen)
+      expect(lastFocusCallback).not.toBeNull();
+      lastFocusCallback!();
+    });
+
+    // loadNext() is synchronous so the loading→loaded transition is not separately observable,
+    // but the session must have advanced to the second joke
+    expect(result.current.state.status).toBe('loaded');
+    const secondId =
+      result.current.state.status === 'loaded'
+        ? result.current.state.joke.id
+        : null;
+    expect(firstId).not.toBeNull();
+    expect(secondId).not.toBeNull();
+    expect(firstId).not.toBe(secondId);
   });
 
   it('loadNext advances to a different joke', () => {
