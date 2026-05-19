@@ -39,12 +39,14 @@ All new source code lives under `src/`. Never add business logic directly to `Ap
 
 ### Components
 - Props interfaces named `<ComponentName>Props`.
-- Styles co-located in a `styles.ts` beside the component using `StyleSheet.create`.
+- Styles shared across screens live in `src/presentation/styles/screenStyles.ts`; screen-specific styles are co-located in a `styles.ts` beside the component.
+- Images: use `useWindowDimensions()` to compute dimensions (e.g. `width * 0.65`) — never hardcode pixel sizes.
 - All user-visible string literals defined in a co-located `strings.ts` (`as const` object) — never inline text in JSX.
 - Use `useCallback` and `useMemo` only when there is a measurable perf reason — don't pre-optimise.
 
 ### Hooks
 - **No render-body initialization.** Never construct objects or run side effects directly in the hook/component render body. Use `useState(() => ...)` (lazy initializer) for one-time object construction; use `useEffect` for side effects. Render-body mutations are fragile under React Strict Mode (double-invoke) and concurrent features.
+- **Screen focus effects:** Use `useFocusEffect` (not `useIsFocused() + useEffect`) for side effects that should re-run each time a screen gains focus. `useIsFocused + useEffect` causes an extra render pass; `useFocusEffect` is the React Navigation–recommended pattern.
 
 ### Navigation
 - All route names defined as a typed `RootStackParamList` (or per-navigator param list) in `src/presentation/navigation/types.ts`.

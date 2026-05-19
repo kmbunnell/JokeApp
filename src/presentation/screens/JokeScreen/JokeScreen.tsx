@@ -14,6 +14,7 @@ import type { RootStackParamList } from '../../navigation/types';
 import { useJokes } from '../../hooks/useJokes';
 import type { JokesState } from '../../hooks/useJokes';
 import { styles } from './styles';
+import { screenStyles } from '../../styles/screenStyles';
 import { strings } from './strings';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, typeof Routes.Joke>;
@@ -28,7 +29,7 @@ function JokeContent({ state }: JokeContentProps) {
       <ActivityIndicator
         testID="loading-indicator"
         size="large"
-        color={styles.loadingIndicator.color}
+        color={screenStyles.loadingIndicator.color}
       />
     );
   }
@@ -52,10 +53,10 @@ export default function JokeScreen() {
   const isLoaded = state.status === 'loaded';
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={screenStyles.container}>
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}>
+        style={screenStyles.scrollView}
+        contentContainerStyle={screenStyles.scrollContent}>
         <JokeContent state={state} />
       </ScrollView>
       <View style={styles.buttonBar}>
