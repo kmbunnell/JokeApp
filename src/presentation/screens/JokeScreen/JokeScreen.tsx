@@ -14,6 +14,7 @@ import type { RootStackParamList } from '../../navigation/types';
 import { useJokes } from '../../hooks/useJokes';
 import type { JokesState } from '../../hooks/useJokes';
 import { styles } from './styles';
+import { strings } from './strings';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, typeof Routes.Joke>;
 
@@ -34,13 +35,11 @@ function JokeContent({ state }: JokeContentProps) {
   if (state.status === 'error') {
     if (state.error.kind === 'out_of_jokes') {
       // TODO: address OUT_OF_JOKES state (e.g. offer a reset / congratulate the user)
-      return <Text style={styles.questionText}>You've heard them all!</Text>;
+      return <Text style={styles.questionText}>{strings.outOfJokes}</Text>;
     }
     // TODO: implement proper error UI for repository failures
     return (
-      <Text style={styles.questionText}>
-        Something went wrong loading a joke.
-      </Text>
+      <Text style={styles.questionText}>{strings.loadError}</Text>
     );
   }
   return <Text style={styles.questionText}>{state.joke.question}</Text>;
@@ -61,15 +60,8 @@ export default function JokeScreen() {
       </ScrollView>
       <View style={styles.buttonBar}>
         <Pressable
-          style={[styles.button, !isLoaded && styles.buttonDisabled]}
-          disabled={!isLoaded}
-          accessibilityState={{ disabled: !isLoaded }}
-          onPress={loadNext}>
-          <Text style={styles.buttonText}>Let's hear another!</Text>
-        </Pressable>
-        <Pressable
           testID="idk-button"
-          style={[styles.button, styles.buttonSecondary, !isLoaded && styles.buttonDisabled]}
+          style={[styles.button, !isLoaded && styles.buttonDisabled]}
           disabled={!isLoaded}
           accessibilityState={{ disabled: !isLoaded }}
           onPress={() => {
@@ -80,7 +72,14 @@ export default function JokeScreen() {
               jokeId: state.joke.id,
             });
           }}>
-          <Text style={styles.buttonText}>IDK, Tell me!</Text>
+          <Text style={styles.buttonText}>{strings.tellMe}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button, styles.buttonSecondary, !isLoaded && styles.buttonDisabled]}
+          disabled={!isLoaded}
+          accessibilityState={{ disabled: !isLoaded }}
+          onPress={loadNext}>
+          <Text style={styles.buttonText}>{strings.nextJoke}</Text>
         </Pressable>
       </View>
     </SafeAreaView>
